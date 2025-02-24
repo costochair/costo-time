@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Costo Time Encoder</title>
+    <script>
+        // Encode the current date and time using the proprietary method
+        function encodeTime() {
+            const currentDate = new Date();
+            const currentTimeString = currentDate.toString();
+            
+            // Convert each character to its ASCII code
+            let asciiArray = [];
+            let asciiSum = 0;
+            for (let i = 0; i < currentTimeString.length; i++) {
+                let asciiValue = currentTimeString.charCodeAt(i);
+                asciiArray.push(asciiValue);
+                asciiSum += asciiValue;
+            }
+
+            // Step 2: Reverse the ASCII array
+            let reversedAscii = asciiArray.reverse().join(',');
+
+            // Step 3: Base64 encode the reversed string
+            let base64Encoded = btoa(reversedAscii);
+
+            // Step 4: Add checksum (sum of all ASCII values modulo 256)
+            const checksum = asciiSum % 256;
+            let finalEncoded = base64Encoded + '-' + checksum;
+
+            document.getElementById('encodedResult').textContent = `Encoded Time: ${finalEncoded}`;
+            document.getElementById('decodedInput').value = finalEncoded; // Set the encoded value to decode input
+        }
+
+        // Decode the encoded time and date using the proprietary method
+        function decodeTime() {
+            const encodedString = document.getElementById('decodedInput').value;
+            const [base64Encoded, checksum] = encodedString.split('-');
+
+            if (!base64Encoded || !checksum) {
+                document.getElementById('decodedResult').textContent = 'Invalid encoded format.';
+                return;
+            }
+
+            // Step 1: Base64 decode the string
+            let decodedString = atob(base64Encoded);
+
+            // Step 2: Convert the reversed string back to original ASCII array
+            let asciiArray = decodedString.split(',').reverse().map(Number);
+            
+            // Verify checksum
+            const calculatedChecksum = asciiArray.reduce((sum, val) => sum + val, 0) % 256;
+            if (parseInt(checksum) !== calculatedChecksum) {
+                document.getElementById('decodedResult').textContent = 'Checksum validation failed!';
+                return;
+            }
+
+            // Step 3: Convert ASCII array back to characters
+            let decodedTime = '';
+            for (let i = 0; i < asciiArray.length; i++) {
+                decodedTime += String.fromCharCode(asciiArray[i]);
+            }
+
+            document.getElementById('decodedResult').textContent = `Decoded Time: ${decodedTime}`;
+        }
+    </script>
+</head>
+<body>
+    <h1>Costo Time Encoder & Decoder</h1>
+    
+    <h2>Encode Current Time</h2>
+    <button onclick="encodeTime()">Encode Current Time</button>
+    <p id="encodedResult"></p>
+    
+    <h2>Decode Time</h2>
+    <input type="text" id="decodedInput" placeholder="Enter encoded time">
+    <button onclick="decodeTime()">Decode Time</button>
+    <p id="decodedResult"></p>
+</body>
+</html>
