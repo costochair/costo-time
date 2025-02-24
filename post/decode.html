@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decode Time</title>
+    <script>
+        function decodeTime(encodedString) {
+            const [base64Encoded, checksum] = encodedString.split('-');
+
+            if (!base64Encoded || !checksum) {
+                alert('Invalid encoded format.');
+                return;
+            }
+
+            // Base64 decode the string
+            let decodedString = atob(base64Encoded);
+
+            // Convert the reversed string back to original ASCII array
+            let asciiArray = decodedString.split(',').reverse().map(Number);
+
+            // Verify checksum
+            const calculatedChecksum = asciiArray.reduce((sum, val) => sum + val, 0) % 256;
+            if (parseInt(checksum) !== calculatedChecksum) {
+                alert('Checksum validation failed!');
+                return;
+            }
+
+            // Convert ASCII array back to characters
+            let decodedTime = '';
+            for (let i = 0; i < asciiArray.length; i++) {
+                decodedTime += String.fromCharCode(asciiArray[i]);
+            }
+
+            return decodedTime;
+        }
+
+        // Prompt for user input and display the decoded time upon page load
+        window.onload = function () {
+            const encodedInput = prompt("Enter the encoded time string for decoding:");
+            if (encodedInput) {
+                const decodedTime = decodeTime(encodedInput);
+                alert(`Decoded Time: ${decodedTime}`);  // Show the decoded time in an alert box
+            }
+        };
+    </script>
+</head>
+<body>
+</body>
+</html>
