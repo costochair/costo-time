@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encode Time</title>
+    <script>
+        function encodeTime() {
+            const currentDate = new Date();
+            const currentTimeString = currentDate.toString();
+
+            // Proprietary encoding: convert each character to ASCII, reverse, base64 encode, and add checksum
+            let asciiArray = [];
+            let asciiSum = 0;
+            for (let i = 0; i < currentTimeString.length; i++) {
+                let asciiValue = currentTimeString.charCodeAt(i);
+                asciiArray.push(asciiValue);
+                asciiSum += asciiValue;
+            }
+
+            // Reverse the array, base64 encode, and add checksum
+            let reversedAscii = asciiArray.reverse().join(',');
+            let base64Encoded = btoa(reversedAscii);
+            const checksum = asciiSum % 256;
+
+            return base64Encoded + '-' + checksum;
+        }
+
+        // Display the encoded time upon page load
+        window.onload = function () {
+            const encodedTime = encodeTime();
+            document.body.textContent = encodedTime;  // Display the encoded time as plaintext
+        };
+    </script>
+</head>
+<body>
+</body>
+</html>
